@@ -29,6 +29,7 @@ GrB_Index build_permute
         if (buf) {
             GrB_Matrix_setElement_BOOL(*P, true, i, tau + moved_up.size());
             moved_up.insert(i);
+            buf = false;
         }
     }
     for (GrB_Index i = tau; i < size; i++) {
@@ -45,7 +46,7 @@ GrB_Info dfs
         (
                 GrB_Vector* s, // v(i) is the DFS level of node i in the graph
                 GrB_Matrix A, // input graph, treated as if boolean in semiring
-                const GrB_Index visited // starting node of the DFS
+                const GrB_Index started // starting node of the DFS
         )
 //output is the permuted vector s such that s[i] is the i-th vertex
 // in the pre-order traversal sequence
@@ -69,7 +70,7 @@ GrB_Info dfs
     GrB_Vector_new(&e, GrB_UINT64, size);
 
 
-    GrB_Vector_setElement_BOOL(e, true, visited);
+    GrB_Vector_setElement_BOOL(e, true, started);
 
 
     GrB_Index nu = build_permute(&e, tau, &P);
