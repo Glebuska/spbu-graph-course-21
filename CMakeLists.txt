@@ -6,7 +6,7 @@ find_library(PATH_TO_GRAPHBLAS graphblas)
 find_library(PATH_TO_GOOGLETEST gtest)
 add_compile_options(-fPIC)
 
-add_executable(graphBlas main.cpp)
+add_executable(graphBlas main.cpp dfs.cpp dfs.h)
 add_executable(graphBlasTest test_main.cpp dfs.cpp dfs.h)
 
 target_link_libraries (graphBlas ${PATH_TO_GRAPHBLAS})

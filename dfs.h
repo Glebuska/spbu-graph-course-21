@@ -13,11 +13,9 @@ using namespace std;
 
 GrB_Index build_permute
         (
-                FILE* f,
                 // both s and e should be permuted
                 GrB_Vector* e, //
                 const GrB_Index tau,
-                const GrB_Index beta,
                 GrB_Matrix* P // output matrix
         );
 
