@@ -58,16 +58,16 @@ GrB_Info dfs
     GrB_Index beta = 0;
 
     GrB_Matrix P;
-    GrB_Matrix P_1;
+    GrB_Matrix P_Transpose;
     GrB_Matrix A_1;
     GrB_Vector n;
     GrB_Vector e;
 
     GrB_Matrix_new(&P, GrB_BOOL, size, size);
-    GrB_Matrix_new(&P_1, GrB_BOOL, size, size);
+    GrB_Matrix_new(&P_Transpose, GrB_BOOL, size, size);
     GrB_Matrix_new(&A_1, GrB_BOOL, size, size);
     GrB_Vector_new(&n, GrB_UINT64, size);
-    GrB_Vector_new(&e, GrB_UINT64, size);
+    GrB_Vector_new(&e, GrB_BOOL, size);
 
 
     GrB_Vector_setElement_BOOL(e, true, started);
@@ -75,12 +75,17 @@ GrB_Info dfs
 
     GrB_Index nu = build_permute(&e, tau, &P);
 
-    GrB_transpose(P_1, nullptr, nullptr, P, nullptr);
+    GrB_transpose(P_Transpose, nullptr, nullptr, P, nullptr);
 
-    GrB_mxm(A, nullptr, nullptr, GxB_ANY_PAIR_BOOL, P_1, A, nullptr);
-    GrB_mxm(A, nullptr, nullptr, GxB_ANY_PAIR_BOOL, A, P, nullptr);
-    GrB_mxv(*s, nullptr, nullptr, GrB_MAX_SECOND_SEMIRING_UINT64, P_1, *s, nullptr);
+    GrB_mxm(A, nullptr, nullptr, GxB_LOR_LAND_BOOL, P_Transpose, A, nullptr);
+    GrB_mxm(A, nullptr, nullptr, GxB_LOR_LAND_BOOL, A, P, nullptr);
 
+    auto f = fopen("process.txt", "w");
+    GxB_Vector_fprint(*s, "s", GxB_COMPLETE, f);
+    GrB_mxv(*s, nullptr, nullptr, GrB_MAX_SECOND_SEMIRING_UINT64, P_Transpose, *s, nullptr); //TODO
+    GxB_Matrix_fprint(P_Transpose, "P_Transpose", GxB_COMPLETE, f);
+    GxB_Vector_fprint(*s, "s", GxB_COMPLETE, f);
+    fclose(f);
     beta += nu;
 
     while (tau < size) {
@@ -90,7 +95,7 @@ GrB_Info dfs
         GrB_Vector_clear(e);
         GrB_Vector_setElement_BOOL(e, true, tau);
 
-        GrB_mxv(n, nullptr, nullptr, GxB_ANY_PAIR_BOOL, A_1, e, nullptr);
+        GrB_mxv(n, nullptr, nullptr, GxB_LOR_LAND_BOOL, A_1, e, nullptr);
 
         tau += 1;
         if (beta < tau) {
@@ -99,18 +104,18 @@ GrB_Info dfs
 
         nu = build_permute(&n, tau, &P);
 
-        GrB_transpose(P_1, nullptr, nullptr, P, nullptr);
+        GrB_transpose(P_Transpose, nullptr, nullptr, P, nullptr);
 
-        GrB_mxm(A, nullptr, nullptr, GxB_ANY_PAIR_BOOL, P_1, A, nullptr);
-        GrB_mxm(A, nullptr, nullptr, GxB_ANY_PAIR_BOOL, A, P, nullptr);
+        GrB_mxm(A, nullptr, nullptr, GxB_LOR_LAND_BOOL, P_Transpose, A, nullptr);
+        GrB_mxm(A, nullptr, nullptr, GxB_LOR_LAND_BOOL, A, P, nullptr);
 
-        GrB_mxv(*s, nullptr, nullptr, GrB_MAX_SECOND_SEMIRING_UINT64, P_1, *s, nullptr);
+        GrB_mxv(*s, nullptr, nullptr, GrB_MAX_SECOND_SEMIRING_UINT64, P_Transpose, *s, nullptr);
 
         beta += nu;
     }
 
     GrB_Matrix_free(&P);
-    GrB_Matrix_free(&P_1);
+    GrB_Matrix_free(&P_Transpose);
     GrB_Matrix_free(&A_1);
     GrB_Vector_free(&n);
     GrB_Vector_free(&e);
