@@ -11,7 +11,7 @@ make
 ## Run
 To run code write:
 ```
-./graphBlas
+./main
 
 ```
 Note: it's need matrix initialisation. Write info about matrix using next format:
@@ -23,6 +23,13 @@ Note: it's need matrix initialisation. Write info about matrix using next format
 ## Test
 To test code install [GoogleTest](https://github.com/google/googletest) framework and write:
 ```
-./graphBlasTest
+./test
+
+```
+
+## Benchmark
+To run benchmark create data directory in your build dir and put some file with info about matrices. Then you should rename input data in benchmark.cpp
+```
+./benchmark
 
 ```
